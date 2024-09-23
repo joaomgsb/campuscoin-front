@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import Input from '../components/Input';
-import Button from '../components/Button';
 import Card from '../components/Card';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../AuthContext';
+import Button from '../components/Button';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -12,6 +12,7 @@ export default function LoginPage() {
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
     const { login } = useContext(AuthContext);
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -20,7 +21,8 @@ export default function LoginPage() {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/auth/login', {
+            // Trocar de localhost para IP Publico
+            const response = await fetch(`${baseUrl}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -31,8 +33,8 @@ export default function LoginPage() {
             if (response.ok) {
                 const data = await response.json();
                 setLoading(false);
-                login(data.token);
-                navigate('/home');
+                login(data.token, data.user);
+                navigate('/');
             } else {
                 const errorData = await response.json();
                 setMessage(errorData.message || 'Tente novamente mais tarde.');
@@ -47,8 +49,9 @@ export default function LoginPage() {
     return (
         <div className="w-full min-h-screen flex flex-col items-center justify-center bg-slate-900">
             <Card title={"Acesse a plataforma"}>
+
                 {message &&
-                    <p className='flex items-center justify-center py-2 text-sm bg-red-200 text-red-900 rounded-md'>
+                    <p className='flex px-4 py-2 text-sm bg-red-200 text-red-900 rounded-md'>
                         {message}
                     </p>}
 

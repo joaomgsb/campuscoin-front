@@ -12,16 +12,19 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         if (password !== passwordConfirm) {
+            setLoading(false);
             return setMessage('As senhas não coincidem');
         }
 
         try {
-            const response = await fetch('http://localhost:3001/api/auth/register', {
+            const response = await fetch(`${baseUrl}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -34,12 +37,15 @@ export default function LoginPage() {
             });
 
             if (response.ok) {
+                setLoading(false);
                 return navigate('/login');
             } else {
+                setLoading(false);
                 setMessage('Error ao se registrar');
             }
         } catch (error) {
-            setMessage(`Erro: ${error}`);
+            setLoading(false);
+            setMessage(error.message);
         }
     }
 
@@ -47,6 +53,9 @@ export default function LoginPage() {
         <div className="w-full min-h-screen flex flex-col items-center justify-center bg-slate-900">
 
             <Card title={"Registre-se"}>
+
+                {message && <p className='px-4 py-2 bg-red-100 text-red-700 rounded-md'>{message}</p>}
+
                 <form onSubmit={handleRegister} className='flex flex-col space-y-2'>
 
                     <label htmlFor="name">Nome</label>
@@ -69,7 +78,6 @@ export default function LoginPage() {
                     </Button>
                 </form>
 
-                {message && <p className="text-red-500">{message}</p>}
             </Card>
 
         </div>
